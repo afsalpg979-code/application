@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var sessionStore: SecureSessionStore
     private var email = ""
     private var name = "Student"
+    private var userId = ""
+    private var userRole = "student"
     private val purple = 0xFF8055F6.toInt()
     private val backgroundColor = 0xFF12101B.toInt()
     private val surface = 0xFF282338.toInt()
@@ -177,6 +179,19 @@ class MainActivity : AppCompatActivity() {
                 info(c.optString("title"), "${c.optString("level")} • $price\n${c.optString("description")}") { course(c) }
             }
         }
+        request({ api.profile(token) }) { auth ->
+            if (auth.ok) {
+                userId = auth.json.optString("id")
+                request({ api.profileRow(userId, token) }) { row ->
+                    val profile = SupabaseClient.array(row.body).optJSONObject(0)
+                    userRole = profile?.optString("role") ?: "student"
+                    name = profile?.optString("full_name")?.ifBlank { name } ?: name
+                    if (userRole == "admin" || userRole == "instructor") {
+                        action(if (userRole == "admin") "Admin dashboard" else "Instructor dashboard") { staffDashboard() }
+                    }
+                }
+            }
+        }
         action("My enrollments") { enrollments() }
         action("My profile") { profile() }
         link("Sign out") { signOut() }
@@ -232,6 +247,29 @@ class MainActivity : AppCompatActivity() {
         }
         link("Back to dashboard") { dashboard() }
         link("Sign out") { signOut() }
+    }
+
+
+    private fun staffDashboard() {
+        screen(if (userRole == "admin") "Admin dashboard" else "Instructor dashboard", "Role: $userRole")
+        info("Course management", "Create and manage course drafts. Publishing is controlled by Supabase policies.")
+        action("Create course") {
+            screen("Create course", "New courses are saved as drafts.")
+            val title = input("Course title")
+            val description = input("Course description")
+            val price = input("Price in INR (0 for free)")
+            val free = CheckBox(this).apply { text = "Free course"; setTextColor(Color.WHITE); isChecked = true }
+            page.addView(free)
+            action("Save draft") {
+                val amount = price.text.toString().toDoubleOrNull() ?: 0.0
+                if (title.text.toString().trim().length < 3) title.error = "Enter a course title"
+                else request({ api.createCourse(title.text.toString().trim(), description.text.toString(), free.isChecked, amount, userId, token) }) { result ->
+                    if (result.ok) { toast("Course draft created"); staffDashboard() } else toast(result.message())
+                }
+            }
+            link("Back") { staffDashboard() }
+        }
+        link("Back to dashboard") { dashboard() }
     }
 
     private fun request(call: () -> SupabaseClient.ApiResult, done: (SupabaseClient.ApiResult) -> Unit) {
