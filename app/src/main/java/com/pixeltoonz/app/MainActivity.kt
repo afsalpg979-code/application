@@ -215,8 +215,8 @@ ${c.optString("description")}") { course(c) }
                 val l = lessons.optJSONObject(i) ?: continue
                 info("${i + 1}. ${l.optString("title")}", "${l.optString("description")} • ${l.optInt("duration_minutes")} min") {
                     val url = l.optString("video_url")
-                    if (url.startsWith("https://") || url.startsWith("http://")) startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    else toast("Lesson video not available")
+                    if (!url.startsWith("https://")) { toast("Secure HTTPS lesson video is not available"); return@info }
+                    startActivity(Intent(this, VideoPlayerActivity::class.java).putExtra("video_url", url))
                     request({ api.markComplete(l.optString("id"), token) }) { p -> if (p.ok) toast("Progress saved") }
                 }
             }
@@ -286,10 +286,29 @@ ${c.optString("description")}") { course(c) }
         sessionStore.save(token, refreshToken, email, name)
     }
     private fun restoreSession() {
-        if (token.isNotBlank()) { dashboard(); return }
+        if (token.isBlank()) { refreshSession(); return }
+        // Validate the persisted access token; refresh tokens outlive access tokens.
+        request({ api.profile(token) }) { current ->
+            if (current.ok) {
+                userId = current.json.optString("id")
+                dashboard()
+            } else refreshSession()
+        }
+    }
+
+    private fun refreshSession() {
+        if (refreshToken.isBlank()) { signOut(); return }
         request({ api.refresh(refreshToken) }) { r ->
-            if (r.ok) { token = r.json.optString("access_token"); refreshToken = r.json.optString("refresh_token"); save(); dashboard() }
-            else { signOut(); toast("Please sign in again.") }
+            if (r.ok) {
+                token = r.json.optString("access_token")
+                refreshToken = r.json.optString("refresh_token", refreshToken)
+                if (token.isBlank()) { signOut(); toast("Please sign in again."); return@request }
+                save()
+                dashboard()
+            } else {
+                signOut()
+                toast("Your session expired. Please sign in again.")
+            }
         }
     }
     private fun signOut() { token = ""; refreshToken = ""; sessionStore.clear(); login() }
