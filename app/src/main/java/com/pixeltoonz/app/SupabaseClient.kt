@@ -1,6 +1,5 @@
 package com.pixeltoonz.app
 
-import android.util.Base64
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
@@ -45,7 +44,7 @@ class SupabaseClient(private val baseUrl: String, private val anonKey: String) {
         JSONObject().put("email", email).put("password", password))
     fun signUp(name: String, email: String, password: String) = request("/auth/v1/signup", "POST",
         JSONObject().put("email", email).put("password", password).put("data", JSONObject().put("full_name", name)))
-    fun recover(email: String) = request("/auth/v1/recover?email=" + enc(email), "POST", JSONObject())
+    fun recover(email: String) = request("/auth/v1/recover", "POST", JSONObject().put("email", email))
     fun courses(token: String) = request("/rest/v1/courses?select=id,title,description,thumbnail_url,level,is_free,price,published&published=eq.true&order=created_at.desc", token = token)
     fun lessons(courseId: String, token: String) = request("/rest/v1/lessons?select=id,course_id,title,description,video_url,duration_minutes,sort_order&course_id=eq.${enc(courseId)}&order=sort_order.asc", token = token)
     fun announcements(token: String) = request("/rest/v1/announcements?select=id,title,body,created_at&published=eq.true&order=created_at.desc&limit=10", token = token)
