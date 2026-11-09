@@ -11,9 +11,13 @@ android {
         applicationId = "com.pixeltoonz.app"
         minSdk = 23
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
     }
+
+    buildFeatures { buildConfig = true }
+    buildConfigField("String", "SUPABASE_URL", "\"\u0024{project.findProperty("SUPABASE_URL") ?: System.getenv("SUPABASE_URL") ?: ""}\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"\u0024{project.findProperty("SUPABASE_ANON_KEY") ?: System.getenv("SUPABASE_ANON_KEY") ?: ""}\"")
 
     buildTypes {
         release {
