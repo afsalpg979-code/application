@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
     private var email = ""
     private var name = "Student"
     private val purple = 0xFF8055F6.toInt()
-    private val background = 0xFF12101B.toInt()
+    private val backgroundColor = 0xFF12101B.toInt()
     private val surface = 0xFF282338.toInt()
     private val muted = 0xFFB8B0C9.toInt()
 
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         page = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(24.dp(), 24.dp(), 24.dp(), 28.dp)
-            setBackgroundColor(background)
+            setBackgroundColor(backgroundColor)
         }
         val scroll = ScrollView(this).apply { isFillViewport = true; addView(page) }
         setContentView(scroll)
@@ -244,6 +244,6 @@ class MainActivity : AppCompatActivity() {
     private fun signOut() { token = ""; getSharedPreferences("session", MODE_PRIVATE).edit().clear().apply(); login() }
     private fun validEmail(s: String) = android.util.Patterns.EMAIL_ADDRESS.matcher(s).matches()
     private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_LONG).show()
-    private fun Int.dp() = (this * resources.displayMetrics.density).toInt()
+    private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
     override fun onDestroy() { io.shutdown(); super.onDestroy() }
 }
