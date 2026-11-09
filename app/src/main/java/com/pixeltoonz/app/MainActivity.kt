@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var api: SupabaseClient
     private lateinit var page: LinearLayout
     private var token = ""
+    private var refreshToken = ""
+    private lateinit var sessionStore: SecureSessionStore
     private var email = ""
     private var name = "Student"
     private val purple = 0xFF8055F6.toInt()
@@ -25,11 +27,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         api = SupabaseClient(BuildConfig.SUPABASE_URL, BuildConfig.SUPABASE_ANON_KEY)
-        val p = getSharedPreferences("session", MODE_PRIVATE)
-        token = p.getString("token", "") ?: ""
-        email = p.getString("email", "") ?: ""
-        name = p.getString("name", "Student") ?: "Student"
-        if (token.isBlank()) login() else dashboard()
+        sessionStore = SecureSessionStore(this)
+        token = sessionStore.accessToken()
+        refreshToken = sessionStore.refreshToken()
+        email = sessionStore.email()
+        name = sessionStore.name()
+        if (token.isBlank() && refreshToken.isBlank()) login() else restoreSession()
     }
 
     private fun screen(title: String, subtitle: String = "") {
@@ -128,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 else -> request({ api.signUp(n, e, pw) }) { r ->
                     if (!r.ok) toast(r.message()) else {
                         val t = r.json.optString("access_token")
-                        if (t.isNotBlank()) { token = t; email = e; name = n; save(); dashboard() }
+                        if (t.isNotBlank()) { token = t; refreshToken = r.json.optString("refresh_token"); email = e; name = n; save(); dashboard() }
                         else { toast("Account created. Check your email, then sign in."); login() }
                     }
                 }
