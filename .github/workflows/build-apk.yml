@@ -33,6 +33,9 @@ jobs:
           ls "$ANDROID_HOME/build-tools"
 
       - name: Build debug APK
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Upload debug APK
