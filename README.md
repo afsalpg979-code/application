@@ -38,3 +38,25 @@ This is a functional foundation, not a production-complete LMS. Before public re
 - Add admin/instructor screens with server-side role-checked policies.
 - Add push notifications, analytics, upload/storage management and device testing.
 - Configure a release signing key using GitHub secrets; never commit signing credentials.
+
+
+## Security and extended-feature status (November 2026)
+
+### Implemented in source
+- Android Keystore AES-256-GCM encrypted access/refresh-token storage.
+- Supabase refresh-token exchange on app restore when access token is missing.
+- Student profile name editing.
+- Role-aware admin/instructor dashboard entry and draft course creation.
+- AndroidX Media3 in-app player for HTTPS lesson URLs.
+- RLS protections for student-owned records, staff course authoring, and paid-course entitlements.
+
+### Integrations requiring owner setup before they are live
+- **Supabase:** add repository Actions secrets `SUPABASE_URL` and `SUPABASE_ANON_KEY`, then run the latest `supabase/schema.sql` in the SQL Editor. Assign staff roles manually from the trusted Supabase SQL console only.
+- **Paid courses:** the database intentionally does not let the Android client mark an order as paid. A trusted server-side payment-order and signed-webhook integration must be deployed and configured for your selected provider before accepting money. Do not ship paid courses until this is complete.
+- **Push notifications:** create a Firebase project, register Android package `com.pixeltoonz.app`, download `google-services.json` into `app/`, and configure Firebase Cloud Messaging. Push delivery is not active until this is configured and an FCM service/token registration flow is added.
+- **Password reset:** configure Supabase Auth redirect URLs for the app's reset deep link and complete the app-side recovery callback before production.
+- **Release signing:** create a private Android upload keystore locally. Store its Base64 contents and passwords as GitHub Actions secrets; never commit the keystore or passwords.
+- **Device QA:** install the generated APK on physical Android devices and verify auth, refresh, video playback, navigation, network loss, and role-specific RLS behavior. CI compilation alone is not device testing.
+
+### Important security note
+The Supabase anon/publishable key is not a secret; authorization must be enforced by RLS. Never put a Supabase service-role key, payment secret, webhook secret, or Firebase service-account credential in the Android app. Paid entitlements must be written only by a trusted server after payment signature verification.
