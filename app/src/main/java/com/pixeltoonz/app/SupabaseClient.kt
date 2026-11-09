@@ -40,7 +40,7 @@ class SupabaseClient(private val baseUrl: String, private val anonKey: String) {
         } finally { connection.disconnect() }
     }
 
-    fun signIn(email: String, password: String) = request("/auth/v1/token?grant_type=password", "POST",
+    fun refresh(refreshToken: String) = request("/auth/v1/token?grant_type=refresh_token", "POST",\n        JSONObject().put("refresh_token", refreshToken))\n    fun signIn(email: String, password: String) = request("/auth/v1/token?grant_type=password", "POST",
         JSONObject().put("email", email).put("password", password))
     fun signUp(name: String, email: String, password: String) = request("/auth/v1/signup", "POST",
         JSONObject().put("email", email).put("password", password).put("data", JSONObject().put("full_name", name)))
