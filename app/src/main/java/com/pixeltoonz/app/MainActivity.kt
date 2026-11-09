@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private fun screen(title: String, subtitle: String = "") {
         page = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(24.dp(), 24.dp(), 24.dp(), 28.dp)
+            setPadding(dp(24), dp(24), dp(24), 28.dp)
             setBackgroundColor(backgroundColor)
         }
         val scroll = ScrollView(this).apply { isFillViewport = true; addView(page) }
@@ -53,16 +53,16 @@ class MainActivity : AppCompatActivity() {
         page.addView(TextView(this).apply {
             text = value; textSize = size.toFloat(); setTextColor(color)
             if (bold) setTypeface(null, android.graphics.Typeface.BOLD)
-            setPadding(0, 6.dp(), 0, 6.dp())
+            setPadding(0, dp(6), 0, dp(6))
         })
     }
 
     private fun input(hintText: String, secret: Boolean = false): EditText {
         val v = EditText(this).apply {
             hint = hintText; setTextColor(Color.WHITE); setHintTextColor(muted)
-            setPadding(14.dp(), 0, 14.dp(), 0); setBackgroundColor(surface)
+            setPadding(dp(14), 0, dp(14), 0); setBackgroundColor(surface)
             inputType = if (secret) 129 else if (hintText.contains("email", true)) 33 else 1
-            layoutParams = LinearLayout.LayoutParams(-1, 54.dp()).apply { topMargin = 10.dp() }
+            layoutParams = LinearLayout.LayoutParams(-1, dp(54)).apply { topMargin = dp(10) }
         }
         page.addView(v); return v
     }
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         page.addView(Button(this).apply {
             text = title; isAllCaps = false; setTextColor(Color.WHITE)
             backgroundTintList = android.content.res.ColorStateList.valueOf(purple)
-            layoutParams = LinearLayout.LayoutParams(-1, 52.dp()).apply { topMargin = 12.dp() }
+            layoutParams = LinearLayout.LayoutParams(-1, dp(52)).apply { topMargin = dp(12) }
             setOnClickListener { callback() }
         })
     }
@@ -79,19 +79,19 @@ class MainActivity : AppCompatActivity() {
     private fun link(title: String, callback: () -> Unit) {
         page.addView(TextView(this).apply {
             text = title; textSize = 14f; gravity = Gravity.CENTER; setTextColor(0xFFC5ADFF.toInt())
-            setPadding(0, 15.dp(), 0, 15.dp()); setOnClickListener { callback() }
+            setPadding(0, dp(15), 0, dp(15)); setOnClickListener { callback() }
         })
     }
 
     private fun info(title: String, description: String, callback: (() -> Unit)? = null) {
         val box = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL; setPadding(15.dp(), 12.dp(), 15.dp(), 12.dp())
+            orientation = LinearLayout.VERTICAL; setPadding(dp(15), dp(12), dp(15), dp(12))
             setBackgroundColor(surface)
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = 10.dp() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) }
             if (callback != null) setOnClickListener { callback() }
         }
         box.addView(TextView(this).apply { text = title; textSize = 17f; setTextColor(Color.WHITE); setTypeface(null, 1) })
-        box.addView(TextView(this).apply { text = description; textSize = 13f; setTextColor(muted); setPadding(0, 5.dp(), 0, 0) })
+        box.addView(TextView(this).apply { text = description; textSize = 13f; setTextColor(muted); setPadding(0, dp(5), 0, 0) })
         page.addView(box)
     }
 
