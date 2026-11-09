@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
             if (pw.length < 6) { pass.error = "Enter your password"; return@action }
             request({ api.signIn(e, pw) }) { r ->
                 if (!r.ok) toast(r.message()) else {
-                    token = r.json.optString("access_token"); email = e
+                    token = r.json.optString("access_token"); refreshToken = r.json.optString("refresh_token"); email = e
                     name = r.json.optJSONObject("user")?.optJSONObject("user_metadata")?.optString("full_name") ?: "Student"
                     save(); dashboard()
                 }
