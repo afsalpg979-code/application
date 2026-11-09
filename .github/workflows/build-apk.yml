@@ -26,10 +26,11 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Install Android platform
+      - name: Verify preinstalled Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
-          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+          ls "$ANDROID_HOME/platforms"
+          ls "$ANDROID_HOME/build-tools"
 
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
