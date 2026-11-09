@@ -40,7 +40,9 @@ class SupabaseClient(private val baseUrl: String, private val anonKey: String) {
         } finally { connection.disconnect() }
     }
 
-    fun refresh(refreshToken: String) = request("/auth/v1/token?grant_type=refresh_token", "POST",\n        JSONObject().put("refresh_token", refreshToken))\n    fun profileRow(userId: String, token: String) = request("/rest/v1/profiles?select=id,full_name,role&id=eq.${enc(userId)}", token = token)
+    fun refresh(refreshToken: String) = request("/auth/v1/token?grant_type=refresh_token", "POST",
+        JSONObject().put("refresh_token", refreshToken))
+    fun profileRow(userId: String, token: String) = request("/rest/v1/profiles?select=id,full_name,role&id=eq.${enc(userId)}", token = token)
     fun updateProfile(userId: String, fullName: String, token: String) = request("/rest/v1/profiles?id=eq.${enc(userId)}", "PATCH",
         JSONObject().put("full_name", fullName), token, "return=minimal")
     fun createCourse(title: String, description: String, free: Boolean, price: Double, userId: String, token: String) = request("/rest/v1/courses", "POST",
