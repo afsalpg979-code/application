@@ -237,19 +237,21 @@ ${c.optString("description")}") { course(c) }
     }
 
     private fun profile() {
-        screen("My profile", "Your student account")
-        info("Name", name); info("Email", email)
-        request({ api.profile(token) }) { r ->
-            if (r.ok) {
-                val u = r.json
-                name = u.optJSONObject("user_metadata")?.optString("full_name") ?: name
-                info("User ID", u.optString("id"))
+        screen("My profile", "Edit your student details")
+        val fullName = input("Full name").apply { setText(name) }
+        info("Email address", email)
+        action("Save profile") {
+            val updated = fullName.text.toString().trim()
+            if (updated.length < 2) fullName.error = "Enter your name"
+            else if (userId.isBlank()) toast("Profile is still loading. Please reopen this screen.")
+            else request({ api.updateProfile(userId, updated, token) }) { r ->
+                if (r.ok) { name = updated; save(); toast("Profile updated"); dashboard() }
+                else toast(r.message())
             }
         }
         link("Back to dashboard") { dashboard() }
         link("Sign out") { signOut() }
     }
-
 
     private fun staffDashboard() {
         screen(if (userRole == "admin") "Admin dashboard" else "Instructor dashboard", "Role: $userRole")
