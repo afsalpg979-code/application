@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
     private fun screen(title: String, subtitle: String = "") {
         page = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(24), dp(24), dp(24), 28.dp)
+            setPadding(dp(24), dp(24), dp(24), dp(28))
             setBackgroundColor(backgroundColor)
         }
         val scroll = ScrollView(this).apply { isFillViewport = true; addView(page) }
@@ -176,7 +176,8 @@ class MainActivity : AppCompatActivity() {
             for (i in 0 until a.length()) {
                 val c = a.optJSONObject(i) ?: continue
                 val price = if (c.optBoolean("is_free")) "Free" else "₹" + c.optString("price")
-                info(c.optString("title"), "${c.optString("level")} • $price\n${c.optString("description")}") { course(c) }
+                info(c.optString("title"), "${c.optString("level")} • $price
+${c.optString("description")}") { course(c) }
             }
         }
         request({ api.profile(token) }) { auth ->
@@ -280,9 +281,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun save() {
-        getSharedPreferences("session", MODE_PRIVATE).edit().putString("token", token).putString("email", email).putString("name", name).apply()
+        sessionStore.save(token, refreshToken, email, name)
     }
-    private fun signOut() { token = ""; getSharedPreferences("session", MODE_PRIVATE).edit().clear().apply(); login() }
+    private fun restoreSession() {
+        if (token.isNotBlank()) { dashboard(); return }
+        request({ api.refresh(refreshToken) }) { r ->
+            if (r.ok) { token = r.json.optString("access_token"); refreshToken = r.json.optString("refresh_token"); save(); dashboard() }
+            else { signOut(); toast("Please sign in again.") }
+        }
+    }
+    private fun signOut() { token = ""; refreshToken = ""; sessionStore.clear(); login() }
     private fun validEmail(s: String) = android.util.Patterns.EMAIL_ADDRESS.matcher(s).matches()
     private fun toast(s: String) = Toast.makeText(this, s, Toast.LENGTH_LONG).show()
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
