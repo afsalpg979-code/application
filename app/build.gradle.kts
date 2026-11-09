@@ -16,8 +16,10 @@ android {
     }
 
     buildFeatures { buildConfig = true }
-    buildConfigField("String", "SUPABASE_URL", "\"\u0024{project.findProperty("SUPABASE_URL") ?: System.getenv("SUPABASE_URL") ?: ""}\"")
-    buildConfigField("String", "SUPABASE_ANON_KEY", "\"\u0024{project.findProperty("SUPABASE_ANON_KEY") ?: System.getenv("SUPABASE_ANON_KEY") ?: ""}\"")
+    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
+    val supabaseKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
+    buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+    buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
 
     buildTypes {
         release {
