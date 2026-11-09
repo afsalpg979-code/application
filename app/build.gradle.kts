@@ -7,19 +7,19 @@ android {
     namespace = "com.pixeltoonz.app"
     compileSdk = 35
 
+    buildFeatures { buildConfig = true }
+
     defaultConfig {
         applicationId = "com.pixeltoonz.app"
         minSdk = 23
         targetSdk = 35
         versionCode = 2
         versionName = "1.1"
+        val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
+        val supabaseKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
+        buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
     }
-
-    buildFeatures { buildConfig = true }
-    val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orElse(providers.environmentVariable("SUPABASE_URL")).orElse("").get()
-    val supabaseKey = providers.gradleProperty("SUPABASE_ANON_KEY").orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).orElse("").get()
-    buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")
-    buildConfigField("String", "SUPABASE_ANON_KEY", "\"$supabaseKey\"")
 
     buildTypes {
         release {
